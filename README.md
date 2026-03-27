@@ -69,17 +69,32 @@ recurring-event-monitor-for-zabbix/
 
 ## Installation
 
-### 1. Copy files to the monitored host
+### 1. Place files in a shared network folder (recommended)
 
-Copy `recurring-event-monitor.ps1`, `config.psd1`, and `exceptions.conf`
-to a local directory on the host. A recommended path is:
+**Do not copy the files to each individual machine.** In an environment with
+hundreds or thousands of monitored hosts, per-machine copies are impractical to
+keep up to date. A change to `config.psd1` or `exceptions.conf` would require
+touching every host.
+
+Instead, place the files in a **shared network folder** accessible to the
+`SYSTEM` account on all domain-joined hosts. Updating the script or its
+configuration files in one place takes effect on every host at the next
+scheduled run — no per-machine action required.
+
+The **NETLOGON** share is ideal: every domain member has read access to it via
+the `SYSTEM` account by default:
 
 ```
-C:\Scripts\recurring-event-monitor\
+\\domain\netlogon\recurring-event-monitor\
 ```
 
-The path must be accessible to the `SYSTEM` account (under which the Zabbix
-agent service runs by default).
+Copy `recurring-event-monitor.ps1`, `config.psd1`, and `exceptions.conf` into
+that directory and set the `{$REM.SCRIPT_PATH}` macro in the Zabbix template to
+the same UNC path (see [Configuring the script path macro](#configuring-the-script-path-macro)).
+
+> **Workgroup / non-domain environments:** use a local path such as
+> `C:\Scripts\recurring-event-monitor\` and deploy files via your preferred
+> method (Group Policy, Ansible, PDQ Deploy, etc.).
 
 ### 2. Edit `config.psd1`
 
@@ -110,6 +125,10 @@ Restart the Zabbix Agent service after the change.
 Run the script once in an elevated PowerShell session to verify it works:
 
 ```powershell
+# Using a UNC path (recommended)
+powershell -NoProfile -ExecutionPolicy Bypass -File "\\domain\netlogon\recurring-event-monitor\recurring-event-monitor.ps1"
+
+# Or using a local path (non-domain fallback)
 powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\recurring-event-monitor\recurring-event-monitor.ps1"
 ```
 
@@ -137,19 +156,20 @@ The template creates the group **Templates/Windows** if it does not already exis
 
 ### Configuring the script path macro
 
-After linking the template, you **must** set the `{$REM.SCRIPT_PATH}` macro to
-match the actual installation path on each host. You can override the macro either:
+After linking the template, set the `{$REM.SCRIPT_PATH}` macro to the
+directory containing the script files.
 
-**Per host** (recommended for non-standard paths):
-1. Open **Configuration → Hosts → <host> → Macros**.
-2. Add `{$REM.SCRIPT_PATH}` with the value pointing to the script directory.
+**For shared-folder deployments (recommended):** override the macro once at the
+template level — all linked hosts inherit it automatically:
 
-**Globally** (if all hosts use the same path):
 1. Open **Configuration → Templates → Recurring Event Monitor → Macros**.
-2. Edit the default value of `{$REM.SCRIPT_PATH}`.
+2. Set `{$REM.SCRIPT_PATH}` to the UNC path, e.g.
+   `\\domain\netlogon\recurring-event-monitor` (no trailing backslash).
 
-The default value is `C:\Scripts\recurring-event-monitor`. If you install the
-script to that path on all hosts, no per-host override is needed.
+**For per-host local paths:** override at the host level instead:
+
+1. Open **Configuration → Hosts → \<host\> → Macros**.
+2. Add `{$REM.SCRIPT_PATH}` with the local path for that host.
 
 #### Adjusting the run interval
 
@@ -274,9 +294,5 @@ startup, so no manual cache cleanup is required.
 
 ## License
 
-Copyright (C) 2021–2025 Bortsov A.S.
-
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any later
-version. See [LICENSE](LICENSE) for the full text.
+This project is licensed under the **GNU General Public License v3.0**.
+See the [LICENSE](LICENSE) file for details.
