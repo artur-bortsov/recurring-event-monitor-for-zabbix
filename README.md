@@ -1,5 +1,7 @@
 # Recurring Event Monitor for Zabbix
 
+![Recurring Event Monitor for Zabbix — Windows logs to Zabbix](assets/project-thumbnail.svg)
+
 A **PowerShell** script that monitors the Windows **System** and **Application**
 event logs for **recurring errors and warnings** and forwards trap notifications
 to a **Zabbix server** via `zabbix_sender`. Runs on monitored Windows hosts
