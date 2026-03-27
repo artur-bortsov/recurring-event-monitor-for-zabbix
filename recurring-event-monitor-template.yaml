@@ -1,0 +1,109 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Windows
+  templates:
+    - uuid: 6e1d2c3b4a5f6e7d8c9b0a1f2e3d4c5b
+      template: Recurring Event Monitor
+      name: Recurring Event Monitor
+      description: |
+        Detects recurring errors and warnings in the Windows System and Application
+        event logs and sends trap notifications to Zabbix.
+
+        How it works:
+          1. The Zabbix agent runs recurring-event-monitor.ps1 on schedule via
+             the "Run Script" item (system.run with nowait).
+          2. The script evaluates events using a sliding time window. When a given
+             Event ID / Source combination occurs CompareCount or more times within
+             CompareInterval minutes, it sends a trap to the "Alert Trap" item
+             (repeat.monitor) using zabbix_sender.
+          3. A flood-protection fuse suppresses repeated alerts for the same event
+             pair for FloodFuse minutes after each notification.
+
+        Required on the monitored host:
+          - Zabbix agent (passive mode) with AllowKey=system.run[*] permitted
+          - zabbix_sender executable (included with the agent package)
+          - recurring-event-monitor.ps1, config.psd1, exceptions.conf
+            installed in the directory referenced by {$REM.SCRIPT_PATH}
+
+        See https://github.com/artur-bortsov/recurring-event-monitor-for-zabbix
+        for full installation and configuration instructions.
+      groups:
+        - name: Templates/Windows
+      macros:
+        - macro: '{$REM.SCRIPT_PATH}'
+          value: 'C:\Scripts\recurring-event-monitor'
+          description: >-
+            Full path to the directory where recurring-event-monitor.ps1,
+            config.psd1, and exceptions.conf are installed.
+            Do NOT include a trailing backslash.
+        - macro: '{$REM.RUN_INTERVAL}'
+          value: 1h
+          description: >-
+            How often Zabbix polls the agent to trigger the script.
+            Should be equal to or shorter than the CompareInterval setting
+            in config.psd1 on the monitored host.
+      items:
+        - uuid: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+          name: 'Recurring Event Monitor: Run Script'
+          type: ZABBIX_PASSIVE
+          key: 'system.run[powershell -NoProfile -NoLogo -ExecutionPolicy Bypass -File "{$REM.SCRIPT_PATH}\recurring-event-monitor.ps1",nowait]'
+          delay: '{$REM.RUN_INTERVAL}'
+          history: 1d
+          trends: '0'
+          value_type: UNSIGNED
+          description: >-
+            Triggers recurring-event-monitor.ps1 on the Zabbix agent using the
+            system.run key in nowait mode. The agent starts the script in the
+            background and returns 1 immediately without waiting for it to finish.
+            Actual alert data is delivered via the repeat.monitor trapper item.
+
+            Requires AllowKey=system.run[*] in the Zabbix agent configuration.
+          tags:
+            - tag: Application
+              value: Recurring Event Monitor
+        - uuid: b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7
+          name: 'Recurring Event Monitor: Alert Trap'
+          type: TRAP
+          key: repeat.monitor
+          history: 7d
+          trends: '0'
+          value_type: TEXT
+          description: >-
+            Receives trap data sent by the recurring-event-monitor.ps1 script
+            via zabbix_sender when a recurring event is detected.
+
+            Each value contains a multi-line description of the event:
+              Journal: <log channel>
+              Level:   Error | Warning
+              Source:  <event source / provider name>
+              ID:      <event ID>
+              Time:    <timestamp>
+
+              Message: <event message text>
+          tags:
+            - tag: Application
+              value: Recurring Event Monitor
+      triggers:
+        - uuid: c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8
+          expression: 'last(/Recurring Event Monitor/repeat.monitor)<>""'
+          recovery_mode: NONE
+          name: 'Recurring event detected on {HOST.NAME}'
+          event_name: 'Recurring event on {HOST.NAME}: {ITEM.LASTVALUE}'
+          priority: AVERAGE
+          description: >-
+            A Windows event log entry (Error or Warning) has been seen
+            repeatedly on {HOST.NAME} within the configured time window.
+
+            Alert details:
+            {ITEM.LASTVALUE}
+
+            To investigate: open Event Viewer on {HOST.NAME} and filter
+            the reported channel by the source and event ID shown above.
+
+            Close this problem manually after investigation.
+          manual_close: 'YES'
+          tags:
+            - tag: Application
+              value: Recurring Event Monitor
