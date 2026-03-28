@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" role="img" aria-labelledby="btitle bdesc">
+  <title id="btitle">Recurring Event Monitor for Zabbix</title>
+  <desc id="bdesc">PowerShell script that detects recurring Windows event log errors and sends Zabbix trap notifications.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f121c"/>
+      <stop offset="100%" stop-color="#1f3962"/>
+    </linearGradient>
+    <filter id="blur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="34"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="500" fill="url(#bg)"/>
+  <ellipse cx="150" cy="100" rx="260" ry="160" fill="#66aaff" fill-opacity="0.24" filter="url(#blur)"/>
+  <ellipse cx="980" cy="40"  rx="190" ry="120" fill="#4adfff" fill-opacity="0.15" filter="url(#blur)"/>
+  <ellipse cx="1020" cy="440" rx="260" ry="170" fill="#ffb05c" fill-opacity="0.13" filter="url(#blur)"/>
+  <!-- Diagonal decorative lines -->
+  <g opacity="0.1" stroke="#ffffff" stroke-width="1">
+    <line x1="640"  y1="48" x2="534" y2="458"/>
+    <line x1="694"  y1="48" x2="588" y2="458"/>
+    <line x1="748"  y1="48" x2="642" y2="458"/>
+    <line x1="802"  y1="48" x2="696" y2="458"/>
+    <line x1="856"  y1="48" x2="750" y2="458"/>
+    <line x1="910"  y1="48" x2="804" y2="458"/>
+    <line x1="964"  y1="48" x2="858" y2="458"/>
+    <line x1="1018" y1="48" x2="912" y2="458"/>
+    <line x1="1072" y1="48" x2="966" y2="458"/>
+    <line x1="1126" y1="48" x2="1020" y2="458"/>
+  </g>
+  <!-- Horizontal grid lines (inside panel area) -->
+  <g opacity="0.07" stroke="#ffffff" stroke-width="1">
+    <line x1="600" y1="90"  x2="1150" y2="90"/>
+    <line x1="600" y1="136" x2="1150" y2="136"/>
+    <line x1="600" y1="182" x2="1150" y2="182"/>
+    <line x1="600" y1="228" x2="1150" y2="228"/>
+    <line x1="600" y1="274" x2="1150" y2="274"/>
+    <line x1="600" y1="320" x2="1150" y2="320"/>
+    <line x1="600" y1="366" x2="1150" y2="366"/>
+    <line x1="600" y1="412" x2="1150" y2="412"/>
+    <line x1="600" y1="458" x2="1150" y2="458"/>
+  </g>
+  <g font-family="Inter, Arial, Helvetica, sans-serif">
+    <!-- Category badge -->
+    <rect x="72" y="52" width="262" height="36" rx="18" fill="#0d172b" fill-opacity="0.58" stroke="#ffffff" stroke-opacity="0.28"/>
+    <text x="203" y="76" text-anchor="middle" fill="#c6d2e8" font-size="17" font-weight="700">Windows logs → Zabbix</text>
+    <!-- Title: mixed sizes to accommodate the long name -->
+    <text x="72" y="158" fill="#f5f8ff" font-size="66" font-weight="800">Recurring</text>
+    <text x="72" y="228" fill="#f5f8ff" font-size="52" font-weight="800">Event Monitor</text>
+    <text x="72" y="290" fill="#f5f8ff" font-size="52" font-weight="800">for Zabbix</text>
+    <!-- Accent underline -->
+    <rect x="72" y="308" width="176" height="7" rx="3" fill="#4adfff"/>
+    <!-- Description -->
+    <text x="72" y="352" fill="#f5f8ff" font-size="22" font-weight="600">Alert on patterns,</text>
+    <text x="72" y="378" fill="#f5f8ff" font-size="22" font-weight="600">not every event.</text>
+    <text x="72" y="412" fill="#c6d2e8" font-size="15">PowerShell · sliding window · flood fuse · exceptions list</text>
+    <!-- Bottom feature badges -->
+    <rect x="72"  y="448" width="168" height="34" rx="16" fill="#0d172b" fill-opacity="0.58" stroke="#ffffff" stroke-opacity="0.28"/>
+    <text x="156" y="470" text-anchor="middle" fill="#f5f8ff" font-size="14" font-weight="700">Sliding window</text>
+    <rect x="256" y="448" width="122" height="34" rx="16" fill="#0d172b" fill-opacity="0.58" stroke="#ffffff" stroke-opacity="0.28"/>
+    <text x="317" y="470" text-anchor="middle" fill="#f5f8ff" font-size="14" font-weight="700">Flood fuse</text>
+    <rect x="394" y="448" width="168" height="34" rx="16" fill="#0d172b" fill-opacity="0.58" stroke="#ffffff" stroke-opacity="0.28"/>
+    <text x="478" y="470" text-anchor="middle" fill="#f5f8ff" font-size="14" font-weight="700">Exceptions list</text>
+    <!-- Right "How it works" panel -->
+    <rect x="610" y="72" width="540" height="392" rx="28" fill="#0a1122" fill-opacity="0.86" stroke="#6088d5" stroke-opacity="0.38"/>
+    <text x="646" y="118" fill="#f5f8ff" font-size="24" font-weight="700">How it works</text>
+    <text x="646" y="145" fill="#c6d2e8" font-size="15">Watches Windows event logs, checks repeated ID/source</text>
+    <text x="646" y="163" fill="#c6d2e8" font-size="15">pairs, and sends meaningful traps to Zabbix.</text>
+    <!-- Card 1: Event logs -->
+    <g>
+      <rect x="646" y="186" width="132" height="128" rx="20" fill="#0f1a30" fill-opacity="0.92" stroke="#ffb05c" stroke-opacity="0.74" stroke-width="2"/>
+      <rect x="662" y="200" width="100" height="7" rx="3" fill="#ffb05c"/>
+      <circle cx="682" cy="217" r="9" fill="#ffb05c" fill-opacity="0.18" stroke="#ffb05c"/>
+      <text x="712" y="252" text-anchor="middle" fill="#f5f8ff" font-size="19" font-weight="700">Event logs</text>
+      <text x="712" y="281" text-anchor="middle" fill="#c6d2e8" font-size="14">System +</text>
+      <text x="712" y="299" text-anchor="middle" fill="#c6d2e8" font-size="14">Application</text>
+    </g>
+    <!-- Card 2: Repeat rule -->
+    <g>
+      <rect x="814" y="186" width="132" height="128" rx="20" fill="#0f1a30" fill-opacity="0.92" stroke="#4adfff" stroke-opacity="0.74" stroke-width="2"/>
+      <rect x="830" y="200" width="100" height="7" rx="3" fill="#4adfff"/>
+      <circle cx="850" cy="217" r="9" fill="#4adfff" fill-opacity="0.18" stroke="#4adfff"/>
+      <text x="880" y="252" text-anchor="middle" fill="#f5f8ff" font-size="19" font-weight="700">Repeat rule</text>
+      <text x="880" y="281" text-anchor="middle" fill="#c6d2e8" font-size="14">ID/source</text>
+      <text x="880" y="299" text-anchor="middle" fill="#c6d2e8" font-size="14">window + fuse</text>
+    </g>
+    <!-- Card 3: Zabbix trap -->
+    <g>
+      <rect x="982" y="186" width="132" height="128" rx="20" fill="#0f1a30" fill-opacity="0.92" stroke="#66aaff" stroke-opacity="0.74" stroke-width="2"/>
+      <rect x="998" y="200" width="100" height="7" rx="3" fill="#66aaff"/>
+      <circle cx="1018" cy="217" r="9" fill="#66aaff" fill-opacity="0.18" stroke="#66aaff"/>
+      <text x="1048" y="252" text-anchor="middle" fill="#f5f8ff" font-size="19" font-weight="700">Zabbix trap</text>
+      <text x="1048" y="281" text-anchor="middle" fill="#c6d2e8" font-size="14">repeat.monitor</text>
+      <text x="1048" y="299" text-anchor="middle" fill="#c6d2e8" font-size="14">via sender</text>
+    </g>
+    <!-- Arrows between cards -->
+    <g fill="none" stroke-linecap="round" stroke-width="5">
+      <line x1="778" y1="250" x2="804" y2="250" stroke="#ffb05c"/>
+      <polygon points="804,250 791,242 791,258" fill="#ffb05c" stroke="none"/>
+      <line x1="946" y1="250" x2="972" y2="250" stroke="#4adfff"/>
+      <polygon points="972,250 959,242 959,258" fill="#4adfff" stroke="none"/>
+    </g>
+    <!-- Panel bottom text -->
+    <text x="646" y="354" fill="#c6d2e8" font-size="15">Alerts fire only when the same Event ID / source</text>
+    <text x="646" y="372" fill="#c6d2e8" font-size="15">pair repeats within the configured window.</text>
+    <!-- Info row -->
+    <text x="646" y="444" fill="#c6d2e8" font-size="13" fill-opacity="0.7">PowerShell  ·  Windows Server  ·  Zabbix 7.0  ·  GPL-3.0</text>
+  </g>
+</svg>
